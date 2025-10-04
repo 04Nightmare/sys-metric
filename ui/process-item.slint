@@ -1,0 +1,54 @@
+import { HorizontalBox, VerticalBox } from "std-widgets.slint";
+
+
+component ProcessItem inherits Rectangle {
+    in property <string> process-name: "Process";
+    in property <string> cpu-usage: "0%";
+    in property <string> memory: "0 MB";
+    height: 60px;
+    background: #1e293b;
+    border-radius: 8px;
+    HorizontalBox {
+        padding: 16px;
+        spacing: 16px;
+        alignment: space-between;
+        Rectangle {
+            width: 40px;
+            height: 40px;
+            background: #334155;
+            border-radius: 8px;
+            Text {
+                text: "⚙";
+                font-size: 20px;
+                vertical-alignment: center;
+                horizontal-alignment: center;
+            }
+        }
+
+        VerticalBox {
+            horizontal-stretch: 1;
+            spacing: 4px;
+            Text {
+                text: process-name;
+                font-size: 14px;
+                color: #f1f5f9;
+                font-weight: 600;
+            }
+
+            HorizontalBox {
+                spacing: 12px;
+                Text {
+                    text: "CPU: " + cpu-usage;
+                    font-size: 12px;
+                    color: #94a3b8;
+                }
+
+                Text {
+                    text: "MEM: " + memory;
+                    font-size: 12px;
+                    color: #94a3b8;
+                }
+            }
+        }
+    }
+}
