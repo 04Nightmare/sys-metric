@@ -1,0 +1,53 @@
+import { VerticalBox, Button } from "std-widgets.slint";
+
+export component MainWindow inherits Window {
+    in property <string> sysName;
+    in property <string> sysVer;
+    in-out property <string> cpuUsage;
+    in-out property <string> memUsage;
+    property <int> count: 0;
+
+    width: 200px;
+    height: 200px;
+    //background: transparent;
+    VerticalBox {
+        label := Text {
+            text: "OS: N/A";
+        }
+
+        label1 := Text {
+            text: "Ver: N/A";
+        }
+
+        Button {
+            text: "Get name";
+            clicked => {
+                label.text = "OS: " + sysName;
+                label1.text = "Ver: " + sysVer;
+            }
+        }
+
+        HorizontalLayout {
+            Text {
+                text: cpuUsage;
+            }
+
+            Text {
+                text: memUsage;
+            }
+        }
+
+        VerticalLayout {
+            Text {
+                text: root.count;
+                color: white;
+            }
+
+            TouchArea {
+                clicked => {
+                    root.count += 1;
+                }
+            }
+        }
+    }
+}
