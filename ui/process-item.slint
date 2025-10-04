@@ -5,18 +5,18 @@ component ProcessItem inherits Rectangle {
     in property <string> process-name: "Process";
     in property <string> cpu-usage: "0%";
     in property <string> memory: "0 MB";
-    height: 60px;
-    background: #1e293b;
-    border-radius: 8px;
+    height: 55px;
+    background: #1e293b;    //#1e293b     #915626
+    border-radius: 10px;
     HorizontalBox {
-        padding: 16px;
-        spacing: 16px;
-        alignment: space-between;
+        padding: 9px;
+        spacing: 10px;
+        alignment: start;
         Rectangle {
             width: 40px;
             height: 40px;
             background: #334155;
-            border-radius: 8px;
+            border-radius: 10px;
             Text {
                 text: "⚙";
                 font-size: 20px;
@@ -27,12 +27,13 @@ component ProcessItem inherits Rectangle {
 
         VerticalBox {
             horizontal-stretch: 1;
-            spacing: 4px;
+            padding: 2px;
+            spacing: -5px;
             Text {
                 text: process-name;
-                font-size: 14px;
+                font-size: 15px;
                 color: #f1f5f9;
-                font-weight: 600;
+                font-weight: 700;
             }
 
             HorizontalBox {
