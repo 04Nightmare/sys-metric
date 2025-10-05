@@ -1,18 +1,170 @@
-import { VerticalBox, Button, HorizontalBox } from "std-widgets.slint";
-import { AppWindow } from "prac_template.slint";
+import { VerticalBox, Button, HorizontalBox, GridBox } from "std-widgets.slint";
+import { ProcessItem } from "process-item.slint";
+import { MetricCard } from "mectric-card.slint";
+import { SystemInfoCard } from "info-card.slint";
 
 export component MainWindow inherits Window {
+    title: "System Monitor";
+    background: #0f172a;
+    preferred-width: 800px;
+    preferred-height: 600px;
     in property <string> sysName;
     in property <string> sysVer;
-    in-out property <string> cpuUsage;
-    in-out property <string> memUsage;
-    property <int> count: 0;
+    in property <float> cpuUsage: 45.2;
+    in property <float> memUsage: 62.8;
+    in property <float> disk-usage: 34.5;
+    in property <float> network-usage: 18.3;
+    in property <string> cpu-name;
+    in property <string> cpu-cores;
+    in property <string> os-name: "Windows";
+    in property <string> os-version: "22361";
+    in property <string> uptime: "00:00:00";
+    Flickable {
+        viewport-height: 1200px;
+        VerticalBox {
+            padding: 24px;
+            spacing: 24px;
+            HorizontalBox {
+                height: 60px;
+                Text {
+                    text: "System Monitor";
+                    font-size: 28px;
+                    color: #f1f5f9;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                }
 
-    // width: 500px;
-    // height: 400px;
-    //background: transparent;
-    HorizontalLayout {
-        AppWindow { }
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+
+                Rectangle {
+                    width: 120px;
+                    height: 40px;
+                    background: #3b82f6;
+                    border-radius: 8px;
+                    TouchArea {
+                        mouse-cursor: pointer;
+                    }
+
+                    Text {
+                        text: "Refresh";
+                        color: #f1f5f9;
+                        font-size: 14px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                        horizontal-alignment: center;
+                    }
+                }
+            }
+
+            SystemInfoCard {
+                cpuName: cpu-name;
+                coreCount: cpu-cores;
+                osName: os-name;
+                osVersion: os-version;
+                uptime: uptime;
+            }
+
+            GridBox {
+                spacing: 20px;
+                Row {
+                    MetricCard {
+                        col: 0;
+                        title: "CPU Usage";
+                        value: cpuUsage + "%";
+                        percentage: cpuUsage;
+                        accent-color: #3b82f6;
+                    }
+
+                    MetricCard {
+                        col: 1;
+                        title: "Memory Usage";
+                        value: memUsage + "%";
+                        percentage: memUsage;
+                        accent-color: #8b5cf6;
+                    }
+
+                    MetricCard {
+                        col: 2;
+                        title: "Disk Usage";
+                        value: round(disk-usage) + "%";
+                        percentage: disk-usage;
+                        accent-color: #10b981;
+                    }
+
+                    MetricCard {
+                        col: 3;
+                        title: "Network";
+                        value: round(network-usage) + "%";
+                        percentage: network-usage;
+                        accent-color: #f59e0b;
+                    }
+                }
+            }
+
+            VerticalBox {
+                vertical-stretch: 1;
+                Text {
+                    text: "Top Processes";
+                    font-size: 20px;
+                    color: #f1f5f9;
+                    font-weight: 700;
+                }
+
+                VerticalBox {
+                    vertical-stretch: 1;
+                    spacing: 12px;
+                    Flickable {
+                        viewport-height: 500px;
+                    //height: 200px;
+                VerticalBox {
+                            ProcessItem {
+                                process-name: "chrome.exe";
+                                cpu-usage: "23.4%";
+                                memory: "1.2 GB";
+                            }
+
+                            ProcessItem {
+                                process-name: "node.exe";
+                                cpu-usage: "15.8%";
+                                memory: "486 MB";
+                            }
+
+                            ProcessItem {
+                                process-name: "code.exe";
+                                cpu-usage: "12.3%";
+                                memory: "892 MB";
+                            }
+
+                            ProcessItem {
+                                process-name: "system";
+                                cpu-usage: "8.1%";
+                                memory: "234 MB";
+                            }
+
+                            ProcessItem {
+                                process-name: "explorer.exe";
+                                cpu-usage: "4.2%";
+                                memory: "156 MB";
+                            }
+
+                            ProcessItem {
+                                process-name: "toons.exe";
+                                cpu-usage: "4.2%";
+                                memory: "156 MB";
+                            }
+
+                            ProcessItem {
+                                process-name: "docker.exe";
+                                cpu-usage: "4.2%";
+                                memory: "156 MB";
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

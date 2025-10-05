@@ -1,12 +1,11 @@
 import { HorizontalBox, VerticalBox } from "std-widgets.slint";
 
-
-component ProcessItem inherits Rectangle {
+export component ProcessItem inherits Rectangle {
     in property <string> process-name: "Process";
     in property <string> cpu-usage: "0%";
     in property <string> memory: "0 MB";
     height: 55px;
-    background: #1e293b;    //#1e293b     #915626
+    background: #132646;    //#1e293b     #915626
     border-radius: 10px;
     HorizontalBox {
         padding: 9px;

@@ -1,6 +1,8 @@
 import { HorizontalBox, VerticalBox } from "std-widgets.slint";
-component SystemInfoCard inherits Rectangle {
+export component SystemInfoCard inherits Rectangle {
     in property <string> cpuName;
+    in property <string> cpuFreq;
+    in property <string> memory;
     in property <string> coreCount;
     in property <string> osName;
     in property <string> osVersion;
@@ -42,6 +44,24 @@ component SystemInfoCard inherits Rectangle {
             HorizontalBox {
                 spacing: 12px;
                 Text {
+                    text: "Cores:";
+                    font-size: 14px;
+                    color: #94a3b8;
+                    font-weight: 600;
+                    min-width: 100px;
+                }
+
+                Text {
+                    text: coreCount;
+                    font-size: 14px;
+                    color: #f1f5f9;
+                    horizontal-stretch: 1;
+                }
+            }
+
+            HorizontalBox {
+                spacing: 12px;
+                Text {
                     text: "OS:";
                     font-size: 14px;
                     color: #94a3b8;
@@ -69,24 +89,6 @@ component SystemInfoCard inherits Rectangle {
 
                 Text {
                     text: osVersion;
-                    font-size: 14px;
-                    color: #f1f5f9;
-                    horizontal-stretch: 1;
-                }
-            }
-
-            HorizontalBox {
-                spacing: 12px;
-                Text {
-                    text: "Hostname:";
-                    font-size: 14px;
-                    color: #94a3b8;
-                    font-weight: 600;
-                    min-width: 100px;
-                }
-
-                Text {
-                    text: hostname;
                     font-size: 14px;
                     color: #f1f5f9;
                     horizontal-stretch: 1;
