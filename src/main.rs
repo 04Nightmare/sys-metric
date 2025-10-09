@@ -3,7 +3,7 @@
 
 use std::{thread, error::Error, time::Duration};
 use slint::ComponentHandle;
-use sysinfo::{Disks, System, RefreshKind, CpuRefreshKind};
+use sysinfo::{CpuRefreshKind, Disks, Networks, RefreshKind, System};
 
 mod timeConvert;
 use timeConvert::convert_time;
@@ -49,6 +49,7 @@ fn main() -> Result<(), slint::PlatformError> {
 
     let handle = main_window.as_weak();
 
+    let handle_cpu_mem = handle.clone();
     std::thread::spawn(move || {
         loop {
             sys.refresh_all();
@@ -62,9 +63,9 @@ fn main() -> Result<(), slint::PlatformError> {
             let usage_txt_clone = usage_txt.clone();
             let mem_txt_clone = mem_txt.clone();
             let up_time_clone = up_time.clone();
-            let handle_clone = handle.clone();
+            let handle_cpu_mem_clone = handle_cpu_mem.clone();
             slint::invoke_from_event_loop(move || {
-                if let Some(window) = handle_clone.upgrade() {
+                if let Some(window) = handle_cpu_mem_clone.upgrade() {
                     window.set_cpuUsage(usage_txt_clone);
                     window.set_memUsage(mem_txt_clone);
                     window.set_uptime(up_time_clone.into());
@@ -72,6 +73,46 @@ fn main() -> Result<(), slint::PlatformError> {
             }).unwrap();
 
             thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+
+    // let mut networks = Networks::new_with_refreshed_list();
+    // thread::sleep(Duration::from_millis(10));
+
+    // networks.refresh(true);
+
+    // for (interface_name, network) in &networks{
+    //     println!("in: {} B, name: {}", network.received(), interface_name);
+    // }
+
+
+    let handle_net = handle.clone();
+    std::thread::spawn(move || {
+        let mut networks = Networks::new_with_refreshed_list();
+        loop{
+            networks.refresh(true);
+
+            let received_before: u64 = networks.iter().map(|(_, data)| data.received()).sum();
+            let transmitted_before: u64 = networks.iter().map(|(_, data)| data.transmitted()).sum();
+
+
+            thread::sleep(Duration::from_secs(1));
+
+
+            networks.refresh(true);
+
+            let received_after: u64 = networks.iter().map(|(_, data)| data.received()).sum();
+            let transmitted_after: u64 = networks.iter().map(|(_, data)| data.transmitted()).sum();
+
+            let down_speed = received_after.saturating_sub(received_before);
+            let up_speed = transmitted_after.saturating_sub(transmitted_before);
+
+            let down_mbps = (down_speed as f64 * 8.0)/ 1000000.0;
+            let up_mbps = (up_speed as f64 * 8.0)/ 1000000.0;
+
+            println!("Download: {:.2}Mbps | Upload: {:.2}Mbps",down_mbps, up_mbps);
+
         }
     });
 
