@@ -2,8 +2,8 @@ import { HorizontalBox, VerticalBox } from "std-widgets.slint";
 export component SystemInfoCard inherits Rectangle {
     in property <string> cpuName;
     in property <string> cpuFreq;
+    in property <string> cpuCount;
     in property <string> memory;
-    in property <string> coreCount;
     in property <string> osName;
     in property <string> osVersion;
     in property <string> uptime;
@@ -52,7 +52,7 @@ export component SystemInfoCard inherits Rectangle {
                 }
 
                 Text {
-                    text: coreCount;
+                    text: cpuCount;
                     font-size: 14px;
                     color: #f1f5f9;
                     horizontal-stretch: 1;
@@ -62,7 +62,7 @@ export component SystemInfoCard inherits Rectangle {
             HorizontalBox {
                 spacing: 12px;
                 Text {
-                    text: "OS:";
+                    text: "OS Name:";
                     font-size: 14px;
                     color: #94a3b8;
                     font-weight: 600;
@@ -80,7 +80,7 @@ export component SystemInfoCard inherits Rectangle {
             HorizontalBox {
                 spacing: 12px;
                 Text {
-                    text: "OS Version:";
+                    text: "OS Ver:";
                     font-size: 14px;
                     color: #94a3b8;
                     font-weight: 600;

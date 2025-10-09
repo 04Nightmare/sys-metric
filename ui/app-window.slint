@@ -5,19 +5,17 @@ import { SystemInfoCard } from "info-card.slint";
 
 export component MainWindow inherits Window {
     title: "System Monitor";
-    background: #0f172a;
+    background: #162446;
     preferred-width: 800px;
     preferred-height: 600px;
-    in property <string> sysName;
-    in property <string> sysVer;
     in property <float> cpuUsage: 45.2;
     in property <float> memUsage: 62.8;
-    in property <float> disk-usage: 34.5;
+    in property <float> diskUsage: 34.5;
     in property <float> network-usage: 18.3;
-    in property <string> cpu-name;
-    in property <string> cpu-cores;
-    in property <string> os-name: "Windows";
-    in property <string> os-version: "22361";
+    in property <string> cpuName;
+    in property <string> cpuCount;
+    in property <string> osName: "Windows";
+    in property <string> osVersion: "0000000";
     in property <string> uptime: "00:00:00";
     Flickable {
         viewport-height: 1200px;
@@ -58,12 +56,22 @@ export component MainWindow inherits Window {
                 }
             }
 
-            SystemInfoCard {
-                cpuName: cpu-name;
-                coreCount: cpu-cores;
-                osName: os-name;
-                osVersion: os-version;
-                uptime: uptime;
+            HorizontalBox {
+                SystemInfoCard {
+                    cpuName: cpuName;
+                    cpuCount: cpuCount;
+                    osName: osName;
+                    osVersion: osVersion;
+                    uptime: uptime;
+                }
+
+                SystemInfoCard {
+                    cpuName: "asdasd";
+                    cpuCount: "asdasd";
+                    osName: "asdasda";
+                    osVersion: "osVersion";
+                    uptime: "uptime";
+                }
             }
 
             GridBox {
@@ -88,8 +96,8 @@ export component MainWindow inherits Window {
                     MetricCard {
                         col: 2;
                         title: "Disk Usage";
-                        value: round(disk-usage) + "%";
-                        percentage: disk-usage;
+                        value: round(diskUsage) + "%";
+                        percentage: diskUsage;
                         accent-color: #10b981;
                     }
 
