@@ -11,12 +11,14 @@ export component MainWindow inherits Window {
     in property <float> cpuUsage: 45.2;
     in property <float> memUsage: 62.8;
     in property <float> diskUsage: 34.5;
-    in property <float> network-usage: 18.3;
+    //in property <float> network-usage: 18.3;
     in property <string> cpuName;
     in property <string> cpuCount;
     in property <string> osName: "Windows";
     in property <string> osVersion: "0000000";
     in property <string> uptime: "00:00:00";
+    in property <float> netDownload;
+    in property <float> netUpload;
     Flickable {
         viewport-height: 1200px;
         VerticalBox {
@@ -101,12 +103,22 @@ export component MainWindow inherits Window {
                         accent-color: #10b981;
                     }
 
-                    MetricCard {
+                    TouchArea {
                         col: 3;
-                        title: "Network";
-                        value: round(network-usage) + "%";
-                        percentage: network-usage;
-                        accent-color: #f59e0b;
+                        property <bool> showing-download: true;
+                        property <float> download-speed: netDownload;
+                        property <float> upload-speed: netUpload;
+                        clicked => {
+                            showing-download = !showing-download;
+                        }
+                        MetricCard {
+                            title: "Network (" + (showing-download ? "Down" : "Up") + ")";
+                            value: (showing-download ? download-speed : upload-speed) + "Mb/s";
+                            percentage: showing-download ? download-speed : upload-speed;
+                            accent-color: #f59e0b;
+                            width: parent.width;
+                            height: parent.height;
+                        }
                     }
                 }
             }

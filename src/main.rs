@@ -149,10 +149,20 @@ fn main() -> Result<(), slint::PlatformError> {
             let down_speed = received_after.saturating_sub(received_before);
             let up_speed = transmitted_after.saturating_sub(transmitted_before);
 
-            let down_mbps = (down_speed as f64 * 8.0)/ 1000000.0;
-            let up_mbps = (up_speed as f64 * 8.0)/ 1000000.0;
+            let down_mbps = (((down_speed as f64 * 8.0)/ 1000000.0)*10.0).round()/10.0;
+            let up_mbps = (((up_speed as f64 * 8.0)/ 1000000.0)*10.0).round()/10.0;
 
             println!("Download: {:.2}Mbps | Upload: {:.2}Mbps",down_mbps, up_mbps);
+
+            let handle_net_clone = handle_net.clone();
+            slint::invoke_from_event_loop(move || {
+                if let Some(window) = handle_net_clone.upgrade(){
+                    window.set_netDownload(down_mbps as f32);
+                    window.set_netUpload(up_mbps as f32);
+                }
+            }).unwrap();
+
+            //thread::sleep(Duration::from_secs(1));
 
         }
     });
