@@ -2,6 +2,7 @@ import { VerticalBox, Button, HorizontalBox, GridBox } from "std-widgets.slint";
 import { ProcessItem } from "process-item.slint";
 import { MetricCard } from "mectric-card.slint";
 import { SystemInfoCard } from "info-card.slint";
+import { SystemInfoCard2 } from "info-card2.slint";
 
 export component MainWindow inherits Window {
     title: "System Monitor";
@@ -11,10 +12,10 @@ export component MainWindow inherits Window {
     in property <float> cpuUsage: 45.2;
     in property <float> memUsage: 62.8;
     in property <float> diskUsage: 34.5;
-    //in property <float> network-usage: 18.3;
     in property <string> cpuName;
     in property <string> cpuCount;
-    in property <string> osName: "Windows";
+    in property <string> motherBoard;
+    in property <string> osName: "N/A";
     in property <string> osVersion: "0000000";
     in property <string> uptime: "00:00:00";
     in property <float> netDownload;
@@ -67,9 +68,9 @@ export component MainWindow inherits Window {
                     uptime: uptime;
                 }
 
-                SystemInfoCard {
-                    cpuName: "asdasd";
-                    cpuCount: "asdasd";
+                SystemInfoCard2 {
+                    memory: "asdasd";
+                    motherBoard: motherBoard;
                     osName: "asdasda";
                     osVersion: "osVersion";
                     uptime: "uptime";
@@ -90,7 +91,7 @@ export component MainWindow inherits Window {
                     MetricCard {
                         col: 1;
                         title: "Memory Usage";
-                        value: memUsage + "%";
+                        value: memUsage + "GB";
                         percentage: memUsage;
                         accent-color: #8b5cf6;
                     }

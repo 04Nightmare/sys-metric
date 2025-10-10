@@ -1,0 +1,117 @@
+import { HorizontalBox, VerticalBox } from "std-widgets.slint";
+export component SystemInfoCard2 inherits Rectangle {
+    in property <string> memory;
+    in property <string> motherBoard;
+    in property <string> cpuFreq;
+    in property <string> cpuCount;
+    in property <string> osName;
+    in property <string> osVersion;
+    in property <string> uptime;
+    background: #1e293b;
+    border-radius: 25px;
+    drop-shadow-blur: 20px;
+    drop-shadow-color: #00000040;
+    VerticalBox {
+        padding: 20px;
+        spacing: 15px;
+        Text {
+            text: "System Information";
+            font-size: 19px;
+            color: #f1f5f9;
+            font-weight: 700;
+        }
+
+        VerticalBox {
+            spacing: 8px;
+            HorizontalBox {
+                spacing: 12px;
+                Text {
+                    text: "RAM:";
+                    font-size: 14px;
+                    color: #94a3b8;
+                    font-weight: 600;
+                    min-width: 100px;
+                }
+
+                Text {
+                    text: memory;
+                    font-size: 14px;
+                    color: #f1f5f9;
+                    horizontal-stretch: 1;
+                }
+            }
+
+            HorizontalBox {
+                spacing: 12px;
+                Text {
+                    text: "Board";
+                    font-size: 14px;
+                    color: #94a3b8;
+                    font-weight: 600;
+                    min-width: 100px;
+                }
+
+                Text {
+                    text: motherBoard;
+                    font-size: 14px;
+                    color: #f1f5f9;
+                    horizontal-stretch: 1;
+                }
+            }
+
+            HorizontalBox {
+                spacing: 12px;
+                Text {
+                    text: "OS Name:";
+                    font-size: 14px;
+                    color: #94a3b8;
+                    font-weight: 600;
+                    min-width: 100px;
+                }
+
+                Text {
+                    text: osName;
+                    font-size: 14px;
+                    color: #f1f5f9;
+                    horizontal-stretch: 1;
+                }
+            }
+
+            HorizontalBox {
+                spacing: 12px;
+                Text {
+                    text: "OS Ver:";
+                    font-size: 14px;
+                    color: #94a3b8;
+                    font-weight: 600;
+                    min-width: 100px;
+                }
+
+                Text {
+                    text: osVersion;
+                    font-size: 14px;
+                    color: #f1f5f9;
+                    horizontal-stretch: 1;
+                }
+            }
+
+            HorizontalBox {
+                spacing: 12px;
+                Text {
+                    text: "Uptime:";
+                    font-size: 14px;
+                    color: #94a3b8;
+                    font-weight: 600;
+                    min-width: 100px;
+                }
+
+                Text {
+                    text: uptime;
+                    font-size: 14px;
+                    color: #f1f5f9;
+                    horizontal-stretch: 1;
+                }
+            }
+        }
+    }
+}

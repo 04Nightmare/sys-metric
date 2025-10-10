@@ -3,7 +3,7 @@
 
 use std::{thread, error::Error, time::Duration};
 use slint::ComponentHandle;
-use sysinfo::{CpuRefreshKind, Disks, Networks, RefreshKind, System};
+use sysinfo::{CpuRefreshKind, Disks, Networks, RefreshKind, System, Motherboard};
 
 mod timeConvert;
 use timeConvert::convert_time;
@@ -17,8 +17,19 @@ fn main() -> Result<(), slint::PlatformError> {
     let mut sys = System::new_all();
     sys.refresh_all();
     let disks = Disks::new_with_refreshed_list();
-    let dk_usage = disks.list()[0].usage();
-    println!("{:?}", dk_usage);
+    // let dk_usage = disks.list()[0].usage();
+    // println!("{:?}", dk_usage);
+    for disk in disks.list(){
+        println!("{:?}, {:?}", disk.name(), disk.file_system());
+    }
+
+    let board_info = if let Some(m) = Motherboard::new() {
+        let info = format!("{} ({})", m.vendor_name().unwrap_or("N/A".to_string()), m.name().unwrap_or("N/A".to_string()));
+        println!("{}", info);
+        info
+    } else {
+        String::from("N/A")
+    };
 
 
     let os_name= System::name().unwrap_or("default".to_string());
@@ -46,6 +57,7 @@ fn main() -> Result<(), slint::PlatformError> {
     main_window.set_osVersion(os_ver.into());
     main_window.set_cpuName(cpu_brand.into());
     main_window.set_cpuCount(cpu_count.into());
+    main_window.set_motherBoard(board_info.into());
 
     let handle = main_window.as_weak();
 
@@ -93,7 +105,6 @@ fn main() -> Result<(), slint::PlatformError> {
         let mut networks = Networks::new_with_refreshed_list();
         loop{
             networks.refresh(true);
-
             let received_before: u64 = networks
                 .iter()
                 .filter(|(name, _)| {
@@ -122,7 +133,6 @@ fn main() -> Result<(), slint::PlatformError> {
 
 
             networks.refresh(true);
-
             let received_after: u64 = networks
                 .iter()
                 .filter(|(name, _)| {
@@ -162,7 +172,6 @@ fn main() -> Result<(), slint::PlatformError> {
                 }
             }).unwrap();
 
-            //thread::sleep(Duration::from_secs(1));
 
         }
     });
