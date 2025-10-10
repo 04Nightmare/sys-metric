@@ -52,7 +52,8 @@ fn main() -> Result<(), slint::PlatformError> {
     let handle_cpu_mem = handle.clone();
     std::thread::spawn(move || {
         loop {
-            sys.refresh_all();
+            sys.refresh_cpu_usage();
+            sys.refresh_memory();
             let cpu_global = sys.global_cpu_usage();
             let mem_global = (sys.used_memory()) as f32/(1024.0*1024.0*1024.0);
             let usage_txt = (cpu_global*10.0).round()/10.0;
@@ -82,8 +83,8 @@ fn main() -> Result<(), slint::PlatformError> {
 
     // networks.refresh(true);
 
-    // for (interface_name, network) in &networks{
-    //     println!("in: {} B, name: {}", network.received(), interface_name);
+    // for (interface_name, _) in &networks{
+    //     println!("Interface name: {}", interface_name);
     // }
 
 
@@ -93,8 +94,28 @@ fn main() -> Result<(), slint::PlatformError> {
         loop{
             networks.refresh(true);
 
-            let received_before: u64 = networks.iter().map(|(_, data)| data.received()).sum();
-            let transmitted_before: u64 = networks.iter().map(|(_, data)| data.transmitted()).sum();
+            let received_before: u64 = networks
+                .iter()
+                .filter(|(name, _)| {
+                    !name.to_lowercase().contains("npcap") && 
+                    !name.to_lowercase().contains("loopback") && 
+                    !name.to_lowercase().contains("virtual") &&
+                    !name.to_lowercase().contains("vmware") &&
+                    !name.to_lowercase().contains("vethernet")
+                })
+                .map(|(_, data)| data.received())
+                .sum();
+            let transmitted_before: u64 = networks
+            .iter()
+            .filter(|(name, _)| {
+                    !name.to_lowercase().contains("npcap") && 
+                    !name.to_lowercase().contains("loopback") && 
+                    !name.to_lowercase().contains("virtual") &&
+                    !name.to_lowercase().contains("vmware") &&
+                    !name.to_lowercase().contains("vethernet")
+                })
+            .map(|(_, data)| data.transmitted())
+            .sum();
 
 
             thread::sleep(Duration::from_secs(1));
@@ -102,8 +123,28 @@ fn main() -> Result<(), slint::PlatformError> {
 
             networks.refresh(true);
 
-            let received_after: u64 = networks.iter().map(|(_, data)| data.received()).sum();
-            let transmitted_after: u64 = networks.iter().map(|(_, data)| data.transmitted()).sum();
+            let received_after: u64 = networks
+                .iter()
+                .filter(|(name, _)| {
+                    !name.to_lowercase().contains("npcap") && 
+                    !name.to_lowercase().contains("loopback") && 
+                    !name.to_lowercase().contains("virtual") &&
+                    !name.to_lowercase().contains("vmware") &&
+                    !name.to_lowercase().contains("vethernet")
+                })
+                .map(|(_, data)| data.received())
+                .sum();
+            let transmitted_after: u64 = networks
+                .iter()
+                .filter(|(name, _)| {
+                    !name.to_lowercase().contains("npcap") && 
+                    !name.to_lowercase().contains("loopback") && 
+                    !name.to_lowercase().contains("virtual") &&
+                    !name.to_lowercase().contains("vmware") &&
+                    !name.to_lowercase().contains("vethernet")
+                })
+                .map(|(_, data)| data.transmitted())
+                .sum();
 
             let down_speed = received_after.saturating_sub(received_before);
             let up_speed = transmitted_after.saturating_sub(transmitted_before);
