@@ -1,6 +1,6 @@
 import { HorizontalBox, VerticalBox } from "std-widgets.slint";
 export component SystemInfoCard2 inherits Rectangle {
-    in property <string> memory;
+    in property <int> memory;
     in property <string> motherBoard;
     in property <string> cpuFreq;
     in property <string> cpuCount;
@@ -34,7 +34,7 @@ export component SystemInfoCard2 inherits Rectangle {
                 }
 
                 Text {
-                    text: memory;
+                    text: memory + "GB";
                     font-size: 14px;
                     color: #f1f5f9;
                     horizontal-stretch: 1;

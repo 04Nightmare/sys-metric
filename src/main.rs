@@ -16,12 +16,12 @@ fn main() -> Result<(), slint::PlatformError> {
 
     let mut sys = System::new_all();
     sys.refresh_all();
-    let disks = Disks::new_with_refreshed_list();
-    // let dk_usage = disks.list()[0].usage();
-    // println!("{:?}", dk_usage);
-    for disk in disks.list(){
-        println!("{:?}, {:?}", disk.name(), disk.file_system());
-    }
+    // let disks = Disks::new_with_refreshed_list();
+    // // let dk_usage = disks.list()[0].usage();
+    // // println!("{:?}", dk_usage);
+    // for disk in &disks{
+    //     println!("{:?}",disk.usage());
+    // }
 
     let board_info = if let Some(m) = Motherboard::new() {
         let info = format!("{} ({})", m.vendor_name().unwrap_or("N/A".to_string()), m.name().unwrap_or("N/A".to_string()));
@@ -41,6 +41,9 @@ fn main() -> Result<(), slint::PlatformError> {
         thread_count += 1;
     }
 
+    let total_ram = sys.total_memory().div_ceil(1024*1024*1024)as i32;
+    println!("RAM: {}", total_ram);
+
     println!("Name: {}", os_name);
     println!("Brand: {}",cpu_brand);
     println!("Core: {}", core_count);
@@ -58,6 +61,7 @@ fn main() -> Result<(), slint::PlatformError> {
     main_window.set_cpuName(cpu_brand.into());
     main_window.set_cpuCount(cpu_count.into());
     main_window.set_motherBoard(board_info.into());
+    main_window.set_memory(total_ram);
 
     let handle = main_window.as_weak();
 
@@ -171,7 +175,34 @@ fn main() -> Result<(), slint::PlatformError> {
                     window.set_netUpload(up_mbps as f32);
                 }
             }).unwrap();
+        }
+    });
 
+
+    let handle_disk = handle.clone();
+    thread::spawn(move || {
+        let mut disks = Disks::new_with_refreshed_list();
+        loop{
+            disks.refresh(true);
+            let read_before = disks.list()[0].usage().read_bytes;
+            let write_before = disks.list()[0].usage().written_bytes;
+
+            thread::sleep(Duration::from_secs(1));
+
+            disks.refresh(true);
+            let read_after = disks.list()[0].usage().read_bytes;
+            let write_after = disks.list()[0].usage().written_bytes;
+
+            let read_speed = (((read_after-read_before) as f32 / 1048576.0)*10.0).round()/10.0;
+            let write_speed = (((write_after-write_before) as f32 / (1048576.0))*10.0).round()/10.0;
+
+            let handle_disk_clone = handle_disk.clone();
+            slint::invoke_from_event_loop(move || {
+                if let Some(window) = handle_disk_clone.upgrade() {
+                    window.set_readSpeed(read_speed);
+                    window.set_writeSpeed(write_speed);
+                }
+            }).unwrap();
 
         }
     });

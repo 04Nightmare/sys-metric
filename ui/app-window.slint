@@ -11,15 +11,18 @@ export component MainWindow inherits Window {
     preferred-height: 600px;
     in property <float> cpuUsage: 45.2;
     in property <float> memUsage: 62.8;
-    in property <float> diskUsage: 34.5;
+    // in property <float> diskUsage: 34.5;
     in property <string> cpuName;
     in property <string> cpuCount;
     in property <string> motherBoard;
+    in property <int> memory;
     in property <string> osName: "N/A";
     in property <string> osVersion: "0000000";
     in property <string> uptime: "00:00:00";
     in property <float> netDownload;
     in property <float> netUpload;
+    in property <float> readSpeed;
+    in property <float> writeSpeed;
     Flickable {
         viewport-height: 1200px;
         VerticalBox {
@@ -69,7 +72,7 @@ export component MainWindow inherits Window {
                 }
 
                 SystemInfoCard2 {
-                    memory: "asdasd";
+                    memory: memory;
                     motherBoard: motherBoard;
                     osName: "asdasda";
                     osVersion: "osVersion";
@@ -78,7 +81,7 @@ export component MainWindow inherits Window {
             }
 
             GridBox {
-                spacing: 20px;
+                spacing: 18px;
                 Row {
                     MetricCard {
                         col: 0;
@@ -96,12 +99,22 @@ export component MainWindow inherits Window {
                         accent-color: #8b5cf6;
                     }
 
-                    MetricCard {
+                    TouchArea {
                         col: 2;
-                        title: "Disk Usage";
-                        value: round(diskUsage) + "%";
-                        percentage: diskUsage;
-                        accent-color: #10b981;
+                        property <bool> showing-write: true;
+                        property <float> read-speed: readSpeed;
+                        property <float> write-speed: writeSpeed;
+                        clicked => {
+                            showing-write = !showing-write;
+                        }
+                        MetricCard {
+                            title: "Disk (" + (showing-write ? "write" : "read") + ")";
+                            value: (showing-write ? write-speed : read-speed) + "MB/s";
+                            percentage: showing-write ? write-speed : read-speed;
+                            accent-color: #10b981;
+                            width: parent.width;
+                            height: parent.height;
+                        }
                     }
 
                     TouchArea {
