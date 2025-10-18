@@ -1,7 +1,7 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 //#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{error::Error, os::windows::process, thread, time::Duration};
+use std::{error::Error, os::windows::process, thread, time::Duration, collections::HashMap};
 use slint::ComponentHandle;
 use sysinfo::{CpuRefreshKind, Disks, Networks, RefreshKind, System, Motherboard, Pid};
 
@@ -60,15 +60,20 @@ fn main() -> Result<(), slint::PlatformError> {
 
     println!("***************************");
 
-    let mut process_list: Vec<_> = sys.processes()
-        .iter()
-        .map(|(pid, proc_)| (*pid, proc_.name().to_string_lossy().to_string(), proc_.memory()))
-        .collect();
-    
-    process_list.sort_by(|a, b| b.2.cmp(&a.2));
+    let mut totals: HashMap<String, u64> = HashMap::new();
+    for (_, proc_) in sys.processes() {
+        let name = proc_.name().to_string_lossy().to_string();
+        let mem = proc_.memory();
 
-    for (pid, name, mem) in process_list.into_iter().take(20) {
-        println!("PID: {:<6} | {:<30} | {:>8}KB", pid, name, mem);
+        *totals.entry(name).or_insert(0) += mem;
+    }
+
+    let mut process_totals: Vec<(String, u64)> = totals.into_iter().collect();
+    
+    process_totals.sort_by(|a, b| b.1.cmp(&a.1));
+
+    for (name, mem) in process_totals.iter().take(20) {
+        println!("{:<30} | {:>8}KB", name, mem);
     }
 
     let main_window = MainWindow::new()?;
