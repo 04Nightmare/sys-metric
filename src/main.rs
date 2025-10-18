@@ -1,9 +1,9 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 //#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{thread, error::Error, time::Duration};
+use std::{error::Error, os::windows::process, thread, time::Duration};
 use slint::ComponentHandle;
-use sysinfo::{CpuRefreshKind, Disks, Networks, RefreshKind, System, Motherboard};
+use sysinfo::{CpuRefreshKind, Disks, Networks, RefreshKind, System, Motherboard, Pid};
 
 mod timeConvert;
 use timeConvert::convert_time;
@@ -52,8 +52,24 @@ fn main() -> Result<(), slint::PlatformError> {
     let cpu_count = format!("{core_count}({thread_count})");
     println!("Both: {}", cpu_count);
 
-    
+    println!("***************************");
 
+    for (pid, process) in sys.processes(){
+        println!("{} {:?}", pid, process.name());
+    }
+
+    println!("***************************");
+
+    let mut process_list: Vec<_> = sys.processes()
+        .iter()
+        .map(|(pid, proc_)| (*pid, proc_.name().to_string_lossy().to_string(), proc_.memory()))
+        .collect();
+    
+    process_list.sort_by(|a, b| b.2.cmp(&a.2));
+
+    for (pid, name, mem) in process_list.into_iter().take(20) {
+        println!("PID: {:<6} | {:<30} | {:>8}KB", pid, name, mem);
+    }
 
     let main_window = MainWindow::new()?;
     main_window.set_osName(os_name.into());
@@ -70,21 +86,22 @@ fn main() -> Result<(), slint::PlatformError> {
         loop {
             sys.refresh_cpu_usage();
             sys.refresh_memory();
-            let cpu_global = sys.global_cpu_usage();
-            let mem_global = (sys.used_memory()) as f32/(1024.0*1024.0*1024.0);
-            let usage_txt = (cpu_global*10.0).round()/10.0;
-            let mem_txt = (mem_global*10.0).round()/10.0;
+            let cpu_global = (sys.global_cpu_usage()*10.0).round()/10.0;
+            let mem_used = ((sys.used_memory() as f32/1073741824.0)*10.0).round()/10.0;
+            let mem_total = ((sys.total_memory() as f32/1073741824.0)*10.0).round()/10.0;
+            let mem_percent = (((mem_used/mem_total)*100.0)*10.0).round()/10.0;
+            //println!("mem%: {}", mem_percent);
             let up_time = convert_time(System::uptime());
             //println!("{}", up_time);
-
-            let usage_txt_clone = usage_txt.clone();
-            let mem_txt_clone = mem_txt.clone();
+            // let usage_txt_clone = usage_txt.clone();
+            // let mem_txt_clone = mem_txt.clone();
             let up_time_clone = up_time.clone();
             let handle_cpu_mem_clone = handle_cpu_mem.clone();
             slint::invoke_from_event_loop(move || {
                 if let Some(window) = handle_cpu_mem_clone.upgrade() {
-                    window.set_cpuUsage(usage_txt_clone);
-                    window.set_memUsage(mem_txt_clone);
+                    window.set_cpuUsage(cpu_global);
+                    window.set_memUsage(mem_used);
+                    window.set_memPercent(mem_percent);
                     window.set_uptime(up_time_clone.into());
                 }
             }).unwrap();
@@ -166,7 +183,7 @@ fn main() -> Result<(), slint::PlatformError> {
             let down_mbps = (((down_speed as f64 * 8.0)/ 1000000.0)*10.0).round()/10.0;
             let up_mbps = (((up_speed as f64 * 8.0)/ 1000000.0)*10.0).round()/10.0;
 
-            println!("Download: {:.2}Mbps | Upload: {:.2}Mbps",down_mbps, up_mbps);
+            //println!("Download: {:.2}Mbps | Upload: {:.2}Mbps",down_mbps, up_mbps);
 
             let handle_net_clone = handle_net.clone();
             slint::invoke_from_event_loop(move || {

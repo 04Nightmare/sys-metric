@@ -11,6 +11,7 @@ export component MainWindow inherits Window {
     preferred-height: 600px;
     in property <float> cpuUsage: 45.2;
     in property <float> memUsage: 62.8;
+    in property <float> memPercent: 50.0;
     // in property <float> diskUsage: 34.5;
     in property <string> cpuName;
     in property <string> cpuCount;
@@ -95,7 +96,7 @@ export component MainWindow inherits Window {
                         col: 1;
                         title: "Memory Usage";
                         value: memUsage + "GB";
-                        percentage: memUsage;
+                        percentage: memPercent;
                         accent-color: #8b5cf6;
                     }
 
