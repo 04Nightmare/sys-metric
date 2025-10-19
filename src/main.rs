@@ -1,9 +1,9 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 //#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{error::Error, os::windows::process, thread, time::Duration, collections::HashMap};
-use slint::ComponentHandle;
-use sysinfo::{CpuRefreshKind, Disks, Networks, RefreshKind, System, Motherboard, Pid};
+use std::{error::Error, os::windows::process, thread, time::Duration, collections::HashMap, rc::Rc};
+use slint::{ComponentHandle, SharedString, VecModel, ModelRc};
+use sysinfo::{CpuRefreshKind, Disks, Motherboard, Networks, Pid, ProcessRefreshKind, RefreshKind, System};
 
 mod timeConvert;
 use timeConvert::convert_time;
@@ -73,8 +73,11 @@ fn main() -> Result<(), slint::PlatformError> {
     process_totals.sort_by(|a, b| b.1.cmp(&a.1));
 
     for (name, mem) in process_totals.iter().take(20) {
-        println!("{:<30} | {:>8}KB", name, mem);
+        println!("{:<5} | {:>8}KB", name, mem);
     }
+
+    let p_list: Vec<(String, u64)> = process_totals[0..19].to_vec();
+    println!("{:?}", p_list);
 
     let main_window = MainWindow::new()?;
     main_window.set_osName(os_name.into());
@@ -226,6 +229,47 @@ fn main() -> Result<(), slint::PlatformError> {
                 }
             }).unwrap();
 
+        }
+    });
+
+    let handle_process = handle.clone();
+    thread::spawn(move || {
+        let mut prs = System::new();
+        loop{
+            prs.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::everything().without_cpu().without_disk_usage());
+            let mut totals: HashMap<String, u64> = HashMap::new();
+            for (_, proc_) in prs.processes() {
+                let name = proc_.name().to_string_lossy().to_string();
+                let mem = proc_.memory();
+                *totals.entry(name).or_insert(0) += mem;
+            }
+
+            let mut process_totals: Vec<(String, u64)> = totals.into_iter().collect();
+            
+            process_totals.sort_by(|a, b| b.1.cmp(&a.1));
+
+            let top_prs: Vec<_> = process_totals.into_iter().take(7).collect();
+
+            let process_data: Vec<ProcessItemData> = top_prs.iter()
+                .map(|(name, mem)| ProcessItemData {
+                    name: SharedString::from(name.clone()),
+                    mem: SharedString::from(format!("{:.1} MB", *mem as f64 / (1024.0*1024.0))),
+                })
+                .collect();
+
+            let handle_process_clone = handle_process.clone();
+            slint::invoke_from_event_loop(move || {
+                let process_model = VecModel::from(process_data);
+                if let Some(window) = handle_process_clone.upgrade(){
+                    window.set_process_model(ModelRc::from(Rc::new(process_model)));
+                }
+            }).unwrap();
+
+            for (name, mem) in &top_prs {
+                println!(" thread:  {:<5} | {:>8}KB", name, mem);
+            }
+            println!("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+            thread::sleep(Duration::from_secs(2));
         }
     });
 

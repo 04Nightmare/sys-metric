@@ -4,15 +4,21 @@ import { MetricCard } from "mectric-card.slint";
 import { SystemInfoCard } from "info-card.slint";
 import { SystemInfoCard2 } from "info-card2.slint";
 
+
+struct ProcessItemData {
+    name: string,
+    mem: string,
+}
+
 export component MainWindow inherits Window {
     title: "System Monitor";
     background: #162446;
     preferred-width: 800px;
     preferred-height: 600px;
+    in property <[ProcessItemData]> process-model;
     in property <float> cpuUsage: 45.2;
     in property <float> memUsage: 62.8;
     in property <float> memPercent: 50.0;
-    // in property <float> diskUsage: 34.5;
     in property <string> cpuName;
     in property <string> cpuCount;
     in property <string> motherBoard;
@@ -24,6 +30,8 @@ export component MainWindow inherits Window {
     in property <float> netUpload;
     in property <float> readSpeed;
     in property <float> writeSpeed;
+    in property <string> process-name;
+    in property <int> process-memory;
     Flickable {
         viewport-height: 1200px;
         VerticalBox {
@@ -154,46 +162,10 @@ export component MainWindow inherits Window {
                         viewport-height: 500px;
                     //height: 200px;
                 VerticalBox {
-                            ProcessItem {
-                                process-name: "chrome.exe";
-                                cpu-usage: "23.4%";
-                                memory: "1.2 GB";
-                            }
-
-                            ProcessItem {
-                                process-name: "node.exe";
-                                cpu-usage: "15.8%";
-                                memory: "486 MB";
-                            }
-
-                            ProcessItem {
-                                process-name: "code.exe";
-                                cpu-usage: "12.3%";
-                                memory: "892 MB";
-                            }
-
-                            ProcessItem {
-                                process-name: "system";
-                                cpu-usage: "8.1%";
-                                memory: "234 MB";
-                            }
-
-                            ProcessItem {
-                                process-name: "explorer.exe";
-                                cpu-usage: "4.2%";
-                                memory: "156 MB";
-                            }
-
-                            ProcessItem {
-                                process-name: "toons.exe";
-                                cpu-usage: "4.2%";
-                                memory: "156 MB";
-                            }
-
-                            ProcessItem {
-                                process-name: "docker.exe";
-                                cpu-usage: "4.2%";
-                                memory: "156 MB";
+                            for p in process-model: ProcessItem {
+                                process-name: p.name;
+                                cpu-usage: "0";
+                                memory: p.mem;
                             }
                         }
                     }
@@ -221,6 +193,104 @@ export component MainWindow inherits Window {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ProcessItem {
+//                                 process-name: process-name;
+//                                 cpu-usage: "23.4%";
+//                                 memory: "1.2 GB";
+//                             }
+
+//                             ProcessItem {
+//                                 process-name: process-name;
+//                                 cpu-usage: "15.8%";
+//                                 memory: "486 MB";
+//                             }
+
+//                             ProcessItem {
+//                                 process-name: process-name;
+//                                 cpu-usage: "12.3%";
+//                                 memory: "892 MB";
+//                             }
+
+//                             ProcessItem {
+//                                 process-name: process-name;
+//                                 cpu-usage: "8.1%";
+//                                 memory: "234 MB";
+//                             }
+
+//                             ProcessItem {
+//                                 process-name: process-name;
+//                                 cpu-usage: "4.2%";
+//                                 memory: "156 MB";
+//                             }
+
+//                             ProcessItem {
+//                                 process-name: "toons.exe";
+//                                 cpu-usage: "4.2%";
+//                                 memory: "156 MB";
+//                             }
+
+//                             ProcessItem {
+//                                 process-name: "docker.exe";
+//                                 cpu-usage: "4.2%";
+//                                 memory: "156 MB";
+//                             }
 
 
 
