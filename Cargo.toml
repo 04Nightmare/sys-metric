@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+gfxinfo = { version = "0.1.2", features = ["gpu_info"] }
 slint = "1.13.1"
 sysinfo = "0.37.1"
 

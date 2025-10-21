@@ -22,7 +22,7 @@ export component MainWindow inherits Window {
     in property <string> cpuName;
     in property <string> cpuCount;
     in property <string> motherBoard;
-    in property <int> memory;
+    in property <string> memory;
     in property <string> osName: "N/A";
     in property <string> osVersion: "0000000";
     in property <string> uptime: "00:00:00";
@@ -32,6 +32,9 @@ export component MainWindow inherits Window {
     in property <float> writeSpeed;
     in property <string> process-name;
     in property <int> process-memory;
+    in property <string> gpu;
+    in property <int> vram;
+    in property <int> temperature;
     Flickable {
         viewport-height: 1200px;
         VerticalBox {
@@ -83,9 +86,9 @@ export component MainWindow inherits Window {
                 SystemInfoCard2 {
                     memory: memory;
                     motherBoard: motherBoard;
-                    osName: "asdasda";
-                    osVersion: "osVersion";
-                    uptime: "uptime";
+                    gpu: gpu;
+                    vram: vram;
+                    temperature: temperature;
                 }
             }
 

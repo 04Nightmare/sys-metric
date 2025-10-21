@@ -1,12 +1,10 @@
 import { HorizontalBox, VerticalBox } from "std-widgets.slint";
 export component SystemInfoCard2 inherits Rectangle {
-    in property <int> memory;
+    in property <string> memory;
     in property <string> motherBoard;
-    in property <string> cpuFreq;
-    in property <string> cpuCount;
-    in property <string> osName;
-    in property <string> osVersion;
-    in property <string> uptime;
+    in property <string> gpu;
+    in property <int> vram;
+    in property <int> temperature;
     background: #1e293b;
     border-radius: 25px;
     drop-shadow-blur: 20px;
@@ -34,7 +32,7 @@ export component SystemInfoCard2 inherits Rectangle {
                 }
 
                 Text {
-                    text: memory + "GB";
+                    text: memory;
                     font-size: 14px;
                     color: #f1f5f9;
                     horizontal-stretch: 1;
@@ -62,7 +60,7 @@ export component SystemInfoCard2 inherits Rectangle {
             HorizontalBox {
                 spacing: 12px;
                 Text {
-                    text: "OS Name:";
+                    text: "GPU";
                     font-size: 14px;
                     color: #94a3b8;
                     font-weight: 600;
@@ -70,7 +68,7 @@ export component SystemInfoCard2 inherits Rectangle {
                 }
 
                 Text {
-                    text: osName;
+                    text: gpu;
                     font-size: 14px;
                     color: #f1f5f9;
                     horizontal-stretch: 1;
@@ -80,7 +78,7 @@ export component SystemInfoCard2 inherits Rectangle {
             HorizontalBox {
                 spacing: 12px;
                 Text {
-                    text: "OS Ver:";
+                    text: "V-RAM:";
                     font-size: 14px;
                     color: #94a3b8;
                     font-weight: 600;
@@ -88,7 +86,7 @@ export component SystemInfoCard2 inherits Rectangle {
                 }
 
                 Text {
-                    text: osVersion;
+                    text: vram;
                     font-size: 14px;
                     color: #f1f5f9;
                     horizontal-stretch: 1;
@@ -98,7 +96,7 @@ export component SystemInfoCard2 inherits Rectangle {
             HorizontalBox {
                 spacing: 12px;
                 Text {
-                    text: "Uptime:";
+                    text: "Temp:";
                     font-size: 14px;
                     color: #94a3b8;
                     font-weight: 600;
@@ -106,7 +104,7 @@ export component SystemInfoCard2 inherits Rectangle {
                 }
 
                 Text {
-                    text: uptime;
+                    text: temperature;
                     font-size: 14px;
                     color: #f1f5f9;
                     horizontal-stretch: 1;

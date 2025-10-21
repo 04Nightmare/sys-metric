@@ -4,15 +4,51 @@
 use std::{error::Error, os::windows::process, thread, time::Duration, collections::HashMap, rc::Rc};
 use slint::{ComponentHandle, SharedString, VecModel, ModelRc};
 use sysinfo::{CpuRefreshKind, Disks, Motherboard, Networks, Pid, ProcessRefreshKind, RefreshKind, System};
+use gfxinfo::active_gpu;
 
 mod timeConvert;
 use timeConvert::convert_time;
 
 
-
 slint::include_modules!();
 
+
 fn main() -> Result<(), slint::PlatformError> {
+
+    let main_window = MainWindow::new()?;
+    let handle = main_window.as_weak();
+
+
+    let handle_gpu = handle.clone();
+    thread::spawn(move || {
+        let gpu_model = active_gpu()
+            .map(|gpu| {
+                println!();
+                println!();
+                println!("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
+                println!("GPU Vendor: {}", gpu.vendor());
+                println!("Model: {}", gpu.model());
+                println!("VRAM: {}", gpu.info().total_vram());
+                println!("Used VRAM: {}", gpu.info().used_vram());
+                println!("Temp: {}", gpu.info().temperature());
+                println!("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
+                println!();
+                println!();
+                gpu.model().to_string()
+            })
+            .unwrap_or_else(|_| "No GPU found".to_string());
+
+        let handle_gpu_clone = handle_gpu.clone();
+        //let gpu_model_clone = gpu_model.clone();
+        slint::invoke_from_event_loop(move || {
+            if let Some(window) = handle_gpu_clone.upgrade(){
+                window.set_gpu(gpu_model.into());
+            }
+        }).unwrap();
+    });
+
+    thread::sleep(Duration::from_secs(2));
+
 
     let mut sys = System::new_all();
     sys.refresh_all();
@@ -41,7 +77,9 @@ fn main() -> Result<(), slint::PlatformError> {
         thread_count += 1;
     }
 
-    let total_ram = sys.total_memory().div_ceil(1024*1024*1024)as i32;
+    let total_ram = sys.total_memory().div_ceil(1073741824);
+    let total_swap = sys.total_swap().div_ceil(1073741824);
+    let ram_and_swap = format!("{}GB (Virtual-{}GB)", total_ram, total_swap);
     println!("RAM: {}", total_ram);
 
     println!("Name: {}", os_name);
@@ -79,15 +117,15 @@ fn main() -> Result<(), slint::PlatformError> {
     let p_list: Vec<(String, u64)> = process_totals[0..19].to_vec();
     println!("{:?}", p_list);
 
-    let main_window = MainWindow::new()?;
+
     main_window.set_osName(os_name.into());
     main_window.set_osVersion(os_ver.into());
     main_window.set_cpuName(cpu_brand.into());
     main_window.set_cpuCount(cpu_count.into());
     main_window.set_motherBoard(board_info.into());
-    main_window.set_memory(total_ram);
+    main_window.set_memory(ram_and_swap.into());
 
-    let handle = main_window.as_weak();
+    
 
     let handle_cpu_mem = handle.clone();
     std::thread::spawn(move || {
@@ -268,7 +306,7 @@ fn main() -> Result<(), slint::PlatformError> {
             for (name, mem) in &top_prs {
                 println!(" thread:  {:<5} | {:>8}KB", name, mem);
             }
-            println!("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+            println!("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
             thread::sleep(Duration::from_secs(2));
         }
     });
