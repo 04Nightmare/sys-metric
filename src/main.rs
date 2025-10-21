@@ -21,30 +21,27 @@ fn main() -> Result<(), slint::PlatformError> {
 
     let handle_gpu = handle.clone();
     thread::spawn(move || {
-        let gpu_model = active_gpu()
-            .map(|gpu| {
-                println!();
-                println!();
-                println!("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
-                println!("GPU Vendor: {}", gpu.vendor());
-                println!("Model: {}", gpu.model());
-                println!("VRAM: {}", gpu.info().total_vram());
-                println!("Used VRAM: {}", gpu.info().used_vram());
-                println!("Temp: {}", gpu.info().temperature());
-                println!("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
-                println!();
-                println!();
-                gpu.model().to_string()
-            })
-            .unwrap_or_else(|_| "No GPU found".to_string());
-
-        let handle_gpu_clone = handle_gpu.clone();
-        //let gpu_model_clone = gpu_model.clone();
-        slint::invoke_from_event_loop(move || {
-            if let Some(window) = handle_gpu_clone.upgrade(){
-                window.set_gpu(gpu_model.into());
-            }
-        }).unwrap();
+        let gpu = active_gpu().expect("No GPU found");
+            println!();
+            println!();
+            println!("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
+            println!("GPU Vendor: {}", gpu.vendor());
+            println!("Model: {}", gpu.model());
+            println!("VRAM: {}", gpu.info().total_vram());
+            println!("Used VRAM: {}", gpu.info().used_vram());
+            println!("Temp: {}", gpu.info().temperature());
+            println!("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
+            println!();
+            println!();
+            let gpu_model = gpu.model().to_string();
+            let gpu_vram = gpu.info().total_vram();
+            let handle_gpu_clone = handle_gpu.clone();
+            slint::invoke_from_event_loop(move || {
+                if let Some(window) = handle_gpu_clone.upgrade(){
+                    window.set_gpu(gpu_model.into());
+                    window.set_vram(gpu_vram as i32);
+                }
+            }).unwrap();
     });
 
     thread::sleep(Duration::from_secs(2));
