@@ -1,7 +1,7 @@
 // Prevent console window in addition to Slint window in Windows release builds when, e.g., starting the app via file manager. Ignored on other platforms.
 //#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{error::Error, os::windows::process, thread, time::Duration, collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, error::Error, os::windows::process, rc::Rc, thread, time::Duration};
 use slint::{ComponentHandle, SharedString, VecModel, ModelRc};
 use sysinfo::{CpuRefreshKind, Disks, Motherboard, Networks, Pid, ProcessRefreshKind, RefreshKind, System};
 use gfxinfo::active_gpu;
@@ -19,22 +19,22 @@ fn main() -> Result<(), slint::PlatformError> {
     let handle = main_window.as_weak();
 
 
+
+    main_window.on_referesh_stats({
+        let mut refresh = System::new();
+        move || {
+            refresh.refresh_all();
+            thread::sleep(Duration::from_secs(3));
+        }
+    });
+
+
+
     let handle_gpu = handle.clone();
     thread::spawn(move || {
         let gpu = active_gpu().expect("No GPU found");
-            println!();
-            println!();
-            println!("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
-            println!("GPU Vendor: {}", gpu.vendor());
-            println!("Model: {}", gpu.model());
-            println!("VRAM: {}", gpu.info().total_vram());
-            println!("Used VRAM: {}", gpu.info().used_vram());
-            println!("Temp: {}", gpu.info().temperature());
-            println!("KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK");
-            println!();
-            println!();
             let gpu_model = gpu.model().to_string();
-            let gpu_vram = gpu.info().total_vram();
+            let gpu_vram = (gpu.info().total_vram())/1073741824;
             let handle_gpu_clone = handle_gpu.clone();
             slint::invoke_from_event_loop(move || {
                 if let Some(window) = handle_gpu_clone.upgrade(){
@@ -49,16 +49,27 @@ fn main() -> Result<(), slint::PlatformError> {
 
     let mut sys = System::new_all();
     sys.refresh_all();
-    // let disks = Disks::new_with_refreshed_list();
-    // // let dk_usage = disks.list()[0].usage();
-    // // println!("{:?}", dk_usage);
-    // for disk in &disks{
-    //     println!("{:?}",disk.usage());
-    // }
+
+    
+    // use std::sync::{Arc, Mutex};
+
+    // main_window.on_referesh_stats({
+    //     let refresh = Arc::new(Mutex::new(System::new()));
+    //     move || {
+    //         let refresh = refresh.clone();
+    //         thread::spawn(move || {
+    //             if let Ok(mut sys) = refresh.lock() {
+    //                 sys.refresh_all();
+    //             }
+    //             thread::sleep(Duration::from_secs(5));
+    //         });
+    //     }
+    // });
+
+    
 
     let board_info = if let Some(m) = Motherboard::new() {
         let info = format!("{} ({})", m.vendor_name().unwrap_or("N/A".to_string()), m.name().unwrap_or("N/A".to_string()));
-        println!("{}", info);
         info
     } else {
         String::from("N/A")
@@ -69,50 +80,11 @@ fn main() -> Result<(), slint::PlatformError> {
     let os_ver = System::os_version().unwrap_or("default".to_string());
     let cpu_brand = sys.cpus()[0].brand();
     let core_count = System::physical_core_count().unwrap();
-    let mut thread_count = 0;
-    for i in sys.cpus(){
-        thread_count += 1;
-    }
-
+    let thread_count = sys.cpus().len();
     let total_ram = sys.total_memory().div_ceil(1073741824);
     let total_swap = sys.total_swap().div_ceil(1073741824);
     let ram_and_swap = format!("{}GB (Virtual-{}GB)", total_ram, total_swap);
-    println!("RAM: {}", total_ram);
-
-    println!("Name: {}", os_name);
-    println!("Brand: {}",cpu_brand);
-    println!("Core: {}", core_count);
-    println!("Thread: {}", thread_count);
-
     let cpu_count = format!("{core_count}({thread_count})");
-    println!("Both: {}", cpu_count);
-
-    println!("***************************");
-
-    for (pid, process) in sys.processes(){
-        println!("{} {:?}", pid, process.name());
-    }
-
-    println!("***************************");
-
-    let mut totals: HashMap<String, u64> = HashMap::new();
-    for (_, proc_) in sys.processes() {
-        let name = proc_.name().to_string_lossy().to_string();
-        let mem = proc_.memory();
-
-        *totals.entry(name).or_insert(0) += mem;
-    }
-
-    let mut process_totals: Vec<(String, u64)> = totals.into_iter().collect();
-    
-    process_totals.sort_by(|a, b| b.1.cmp(&a.1));
-
-    for (name, mem) in process_totals.iter().take(20) {
-        println!("{:<5} | {:>8}KB", name, mem);
-    }
-
-    let p_list: Vec<(String, u64)> = process_totals[0..19].to_vec();
-    println!("{:?}", p_list);
 
 
     main_window.set_osName(os_name.into());
@@ -129,17 +101,16 @@ fn main() -> Result<(), slint::PlatformError> {
         loop {
             sys.refresh_cpu_usage();
             sys.refresh_memory();
+
             let cpu_global = (sys.global_cpu_usage()*10.0).round()/10.0;
             let mem_used = ((sys.used_memory() as f32/1073741824.0)*10.0).round()/10.0;
             let mem_total = ((sys.total_memory() as f32/1073741824.0)*10.0).round()/10.0;
             let mem_percent = (((mem_used/mem_total)*100.0)*10.0).round()/10.0;
-            //println!("mem%: {}", mem_percent);
             let up_time = convert_time(System::uptime());
-            //println!("{}", up_time);
-            // let usage_txt_clone = usage_txt.clone();
-            // let mem_txt_clone = mem_txt.clone();
             let up_time_clone = up_time.clone();
+
             let handle_cpu_mem_clone = handle_cpu_mem.clone();
+
             slint::invoke_from_event_loop(move || {
                 if let Some(window) = handle_cpu_mem_clone.upgrade() {
                     window.set_cpuUsage(cpu_global);
@@ -153,15 +124,6 @@ fn main() -> Result<(), slint::PlatformError> {
         }
     });
 
-
-    // let mut networks = Networks::new_with_refreshed_list();
-    // thread::sleep(Duration::from_millis(10));
-
-    // networks.refresh(true);
-
-    // for (interface_name, _) in &networks{
-    //     println!("Interface name: {}", interface_name);
-    // }
 
 
     let handle_net = handle.clone();
@@ -226,7 +188,6 @@ fn main() -> Result<(), slint::PlatformError> {
             let down_mbps = (((down_speed as f64 * 8.0)/ 1000000.0)*10.0).round()/10.0;
             let up_mbps = (((up_speed as f64 * 8.0)/ 1000000.0)*10.0).round()/10.0;
 
-            //println!("Download: {:.2}Mbps | Upload: {:.2}Mbps",down_mbps, up_mbps);
 
             let handle_net_clone = handle_net.clone();
             slint::invoke_from_event_loop(move || {
@@ -237,6 +198,7 @@ fn main() -> Result<(), slint::PlatformError> {
             }).unwrap();
         }
     });
+
 
 
     let handle_disk = handle.clone();
@@ -271,7 +233,7 @@ fn main() -> Result<(), slint::PlatformError> {
     thread::spawn(move || {
         let mut prs = System::new();
         loop{
-            prs.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::everything().without_cpu().without_disk_usage());
+            prs.refresh_processes_specifics(sysinfo::ProcessesToUpdate::All, true, ProcessRefreshKind::nothing().with_cpu().with_memory().without_tasks());
             let mut totals: HashMap<String, u64> = HashMap::new();
             for (_, proc_) in prs.processes() {
                 let name = proc_.name().to_string_lossy().to_string();
@@ -283,7 +245,7 @@ fn main() -> Result<(), slint::PlatformError> {
             
             process_totals.sort_by(|a, b| b.1.cmp(&a.1));
 
-            let top_prs: Vec<_> = process_totals.into_iter().take(7).collect();
+            let top_prs: Vec<_> = process_totals.into_iter().take(8).collect();
 
             let process_data: Vec<ProcessItemData> = top_prs.iter()
                 .map(|(name, mem)| ProcessItemData {
@@ -300,10 +262,6 @@ fn main() -> Result<(), slint::PlatformError> {
                 }
             }).unwrap();
 
-            for (name, mem) in &top_prs {
-                println!(" thread:  {:<5} | {:>8}KB", name, mem);
-            }
-            println!("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
             thread::sleep(Duration::from_secs(2));
         }
     });

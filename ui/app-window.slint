@@ -15,10 +15,11 @@ export component MainWindow inherits Window {
     background: #162446;
     preferred-width: 800px;
     preferred-height: 600px;
+    callback referesh-stats();
     in property <[ProcessItemData]> process-model;
-    in property <float> cpuUsage: 45.2;
-    in property <float> memUsage: 62.8;
-    in property <float> memPercent: 50.0;
+    in property <float> cpuUsage: 0.0;
+    in property <float> memUsage: 0.0;
+    in property <float> memPercent: 0.0;
     in property <string> cpuName;
     in property <string> cpuCount;
     in property <string> motherBoard;
@@ -61,6 +62,9 @@ export component MainWindow inherits Window {
                     border-radius: 8px;
                     TouchArea {
                         mouse-cursor: pointer;
+                        clicked => {
+                            root.referesh-stats();
+                        }
                     }
 
                     Text {
