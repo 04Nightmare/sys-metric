@@ -2,6 +2,7 @@
 # will have compiled files and executables
 /target/
 /ui/prac_template.slint
+readme_new.md
 
 # Alternative VCS systems
 /.jj/

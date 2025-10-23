@@ -1,7 +1,9 @@
 [package]
-name = "slint-rust-template"
+name = "Sys-metric"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
+description = "A simple System performance monitering desktop tool."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -12,3 +14,8 @@ sysinfo = "0.37.1"
 
 [build-dependencies]
 slint-build = "1.13.1"
+
+
+[package.metadata.bundle]
+name = "Sys-metric"
+identifier = "io.github.04Nightmare.sys-metric"
