@@ -32,3 +32,6 @@ cargo build --release
 ### .exe can be found in:
 
 - `sys-metric/target/release/Sys-metric.exe`
+
+## Download
+- [Sys-metric](https://github.com/04Nightmare/sys-metric/releases/download/v1.0-beta/Sys-metric.exe)
